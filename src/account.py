@@ -13,6 +13,9 @@ class Account:
         if self.pesel == "Invalid":
             return False
         
-        year_digits = self.pesel[:2]
-        year = int(year_digits)
-        return year > 60
+        year_digits = int(self.pesel[:2])
+        if year_digits <= 60:
+            year = 2000 + year_digits
+        else:
+            year = 1900 + year_digits
+        return year > 1960
