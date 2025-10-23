@@ -24,19 +24,17 @@ class Account:
         mm = int(self.pesel[2:4])
 
         if 1 <= mm <= 12:
-            century = 1900
+            return 1900 + yy
         elif 21 <= mm <= 32:
-            century = 2000
+            return 2000 + yy
         elif 41 <= mm <= 52:
-            century = 2100
+            return 2100 + yy
         elif 61 <= mm <= 72:
-            century = 2200
+            return 2200 + yy
         elif 81 <= mm <= 92:
-            century = 1800
-        else:
-            return None
+            return 1800 + yy
 
-        return century + yy
+        return (1900 + yy) if yy >= 60 else (2000 + yy)
 
     def _is_born_after_1960(self):
         year = self._extract_birth_year()
