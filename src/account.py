@@ -46,3 +46,10 @@ class Account:
     def outgoing_transfer(self, amount):
         if self.balance >= amount:
             self.balance -= amount
+
+
+class CompanyAccount(Account):
+    def __init__(self, company_name, nip):
+        self.company_name = company_name
+        self.nip = nip if len(nip) == 10 and nip.isdigit() else "Invalid"
+        self.balance = 0
