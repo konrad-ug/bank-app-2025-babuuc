@@ -4,6 +4,7 @@ class Account:
         self.last_name = last_name
         self.pesel = pesel if len(pesel) == 11 else "Invalid"
         self.balance = 0
+        self.historia = []
         
         if (
             promo_code
@@ -42,15 +43,19 @@ class Account:
 
     def incoming_transfer(self, amount):
         self.balance += amount
+        self.historia.append(amount)
 
     def outgoing_transfer(self, amount):
         if self.balance >= amount:
             self.balance -= amount
+            self.historia.append(-amount)
 
     def express_outgoing_transfer(self, amount):
         fee = 1
         if self.balance >= amount:
             self.balance -= (amount + fee)
+            self.historia.append(-amount)
+            self.historia.append(-fee)
 
 
 class CompanyAccount(Account):
@@ -58,8 +63,11 @@ class CompanyAccount(Account):
         self.company_name = company_name
         self.nip = nip if len(nip) == 10 and nip.isdigit() else "Invalid"
         self.balance = 0
+        self.historia = []
 
     def express_outgoing_transfer(self, amount):
         fee = 5
         if self.balance >= amount:
             self.balance -= (amount + fee)
+            self.historia.append(-amount)
+            self.historia.append(-fee)

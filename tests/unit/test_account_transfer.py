@@ -59,3 +59,38 @@ class TestAccountTransfer:
         account.incoming_transfer(51)
         account.express_outgoing_transfer(50)
         assert account.balance == 0
+
+    def test_history_incoming_transfer(self):
+        account = Account("John", "Doe", "12345678901")
+        account.incoming_transfer(100)
+        assert account.historia == [100]
+
+    def test_history_outgoing_transfer(self):
+        account = Account("John", "Doe", "12345678901")
+        account.incoming_transfer(200)
+        account.outgoing_transfer(50)
+        assert account.historia == [200, -50]
+
+    def test_history_express_transfer(self):
+        account = Account("John", "Doe", "12345678901")
+        account.incoming_transfer(500)
+        account.express_outgoing_transfer(300)
+        assert account.historia == [500, -300, -1]
+
+    def test_history_multiple_transfers(self):
+        account = Account("John", "Doe", "12345678901")
+        account.incoming_transfer(100)
+        account.incoming_transfer(50)
+        account.outgoing_transfer(30)
+        assert account.historia == [100, 50, -30]
+
+    def test_history_failed_outgoing_transfer(self):
+        account = Account("John", "Doe", "12345678901")
+        account.outgoing_transfer(50)
+        assert account.historia == []
+
+    def test_history_failed_express_transfer(self):
+        account = Account("John", "Doe", "12345678901")
+        account.incoming_transfer(10)
+        account.express_outgoing_transfer(50)
+        assert account.historia == [10]

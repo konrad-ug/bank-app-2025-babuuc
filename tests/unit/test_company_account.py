@@ -75,3 +75,14 @@ class TestCompanyAccount:
         account.incoming_transfer(55)
         account.express_outgoing_transfer(50)
         assert account.balance == 0
+
+    def test_history_incoming_transfer(self):
+        account = CompanyAccount("Tech Corp", "1234567890")
+        account.incoming_transfer(100)
+        assert account.historia == [100]
+
+    def test_history_express_transfer(self):
+        account = CompanyAccount("Tech Corp", "1234567890")
+        account.incoming_transfer(100)
+        account.express_outgoing_transfer(50)
+        assert account.historia == [100, -50, -5]
