@@ -39,3 +39,10 @@ class Account:
     def _is_born_after_1960(self):
         year = self._extract_birth_year()
         return year is not None and year >= 1961
+
+    def incoming_transfer(self, amount):
+        self.balance += amount
+
+    def outgoing_transfer(self, amount):
+        if self.balance >= amount:
+            self.balance -= amount
