@@ -47,9 +47,19 @@ class Account:
         if self.balance >= amount:
             self.balance -= amount
 
+    def express_outgoing_transfer(self, amount):
+        fee = 1
+        if self.balance >= amount:
+            self.balance -= (amount + fee)
+
 
 class CompanyAccount(Account):
     def __init__(self, company_name, nip):
         self.company_name = company_name
         self.nip = nip if len(nip) == 10 and nip.isdigit() else "Invalid"
         self.balance = 0
+
+    def express_outgoing_transfer(self, amount):
+        fee = 5
+        if self.balance >= amount:
+            self.balance -= (amount + fee)

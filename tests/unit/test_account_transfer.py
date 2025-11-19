@@ -30,3 +30,32 @@ class TestAccountTransfer:
         account.incoming_transfer(100)
         account.outgoing_transfer(100)
         assert account.balance == 0
+
+    def test_express_outgoing_transfer_sufficient_funds(self):
+        account = Account("John", "Doe", "12345678901")
+        account.incoming_transfer(100)
+        account.express_outgoing_transfer(50)
+        assert account.balance == 49
+
+    def test_express_outgoing_transfer_with_fee_only(self):
+        account = Account("John", "Doe", "12345678901")
+        account.incoming_transfer(1)
+        account.express_outgoing_transfer(0)
+        assert account.balance == 0
+
+    def test_express_outgoing_transfer_below_zero_by_fee(self):
+        account = Account("John", "Doe", "12345678901")
+        account.express_outgoing_transfer(0)
+        assert account.balance == -1
+
+    def test_express_outgoing_transfer_insufficient_for_amount(self):
+        account = Account("John", "Doe", "12345678901")
+        account.incoming_transfer(10)
+        account.express_outgoing_transfer(50)
+        assert account.balance == 10
+
+    def test_express_outgoing_transfer_exact_amount_plus_fee(self):
+        account = Account("John", "Doe", "12345678901")
+        account.incoming_transfer(51)
+        account.express_outgoing_transfer(50)
+        assert account.balance == 0
