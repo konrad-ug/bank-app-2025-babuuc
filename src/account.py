@@ -57,18 +57,26 @@ class Account:
             self.historia.append(-amount)
             self.historia.append(-fee)
 
+    def _check_last_three_incoming(self):
+        if len(self.historia) < 3:
+            return False
+        last_three = self.historia[-3:]
+        return all(transaction > 0 for transaction in last_three)
+
+    def _check_sum_of_last_five(self, amount):
+        if len(self.historia) < 5:
+            return False
+        last_five = self.historia[-5:]
+        return sum(last_five) > amount
+
     def submit_for_loan(self, amount):
-        if len(self.historia) >= 3:
-            last_three = self.historia[-3:]
-            if all(transaction > 0 for transaction in last_three):
-                self.balance += amount
-                return True
+        if self._check_last_three_incoming():
+            self.balance += amount
+            return True
         
-        if len(self.historia) >= 5:
-            last_five = self.historia[-5:]
-            if sum(last_five) > amount:
-                self.balance += amount
-                return True
+        if self._check_sum_of_last_five(amount):
+            self.balance += amount
+            return True
         
         return False
 

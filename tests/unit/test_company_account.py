@@ -1,88 +1,59 @@
+import pytest
 from src.account import CompanyAccount
 
 
 class TestCompanyAccount:
-    def test_company_account_creation(self):
-        account = CompanyAccount("Tech Corp", "1234567890")
-        assert account.company_name == "Tech Corp"
-        assert account.nip == "1234567890"
-        assert account.balance == 0
+    def test_company_account_creation(self, company_account):
+        assert company_account.company_name == "Tech Corp"
+        assert company_account.nip == "1234567890"
+        assert company_account.balance == 0
 
-    def test_company_account_nip_short(self):
-        account = CompanyAccount("Tech Corp", "123456789")
+    @pytest.mark.parametrize("nip", ["123456789", "12345678901", "123456789A"])
+    def test_company_account_invalid_nip(self, nip):
+        account = CompanyAccount("Tech Corp", nip)
         assert account.nip == "Invalid"
 
-    def test_company_account_nip_long(self):
-        account = CompanyAccount("Tech Corp", "12345678901")
-        assert account.nip == "Invalid"
+    def test_company_account_no_promo(self, company_account):
+        assert company_account.balance == 0
 
-    def test_company_account_nip_letters(self):
-        account = CompanyAccount("Tech Corp", "123456789A")
-        assert account.nip == "Invalid"
+    def test_company_account_incoming_transfer(self, company_account):
+        company_account.incoming_transfer(100)
+        assert company_account.balance == 100
 
-    def test_company_account_no_promo(self):
-        account = CompanyAccount("Tech Corp", "1234567890")
-        assert account.balance == 0
+    @pytest.mark.parametrize("initial,transfer,expected", [
+        (200, 50, 150),
+        (0, 50, 0),
+    ])
+    def test_company_account_outgoing_transfer(self, company_account, initial, transfer, expected):
+        if initial > 0:
+            company_account.incoming_transfer(initial)
+        company_account.outgoing_transfer(transfer)
+        assert company_account.balance == expected
 
-    def test_company_account_incoming_transfer(self):
-        account = CompanyAccount("Tech Corp", "1234567890")
-        account.incoming_transfer(100)
-        assert account.balance == 100
+    def test_company_account_multiple_transfers(self, company_account):
+        company_account.incoming_transfer(100)
+        company_account.incoming_transfer(50)
+        company_account.outgoing_transfer(30)
+        assert company_account.balance == 120
 
-    def test_company_account_outgoing_transfer(self):
-        account = CompanyAccount("Tech Corp", "1234567890")
-        account.incoming_transfer(200)
-        account.outgoing_transfer(50)
-        assert account.balance == 150
+    @pytest.mark.parametrize("initial,transfer,expected", [
+        (100, 50, 45),
+        (55, 50, 0),
+        (5, 0, 0),
+        (0, 0, -5),
+        (10, 50, 10),
+    ])
+    def test_express_outgoing_transfer_scenarios(self, company_account, initial, transfer, expected):
+        if initial > 0:
+            company_account.incoming_transfer(initial)
+        company_account.express_outgoing_transfer(transfer)
+        assert company_account.balance == expected
 
-    def test_company_account_outgoing_transfer_insufficient(self):
-        account = CompanyAccount("Tech Corp", "1234567890")
-        account.outgoing_transfer(50)
-        assert account.balance == 0
+    def test_history_incoming_transfer(self, company_account):
+        company_account.incoming_transfer(100)
+        assert company_account.historia == [100]
 
-    def test_company_account_multiple_transfers(self):
-        account = CompanyAccount("Tech Corp", "1234567890")
-        account.incoming_transfer(100)
-        account.incoming_transfer(50)
-        account.outgoing_transfer(30)
-        assert account.balance == 120
-
-    def test_express_outgoing_transfer_sufficient_funds(self):
-        account = CompanyAccount("Tech Corp", "1234567890")
-        account.incoming_transfer(100)
-        account.express_outgoing_transfer(50)
-        assert account.balance == 45
-
-    def test_express_outgoing_transfer_with_fee_only(self):
-        account = CompanyAccount("Tech Corp", "1234567890")
-        account.incoming_transfer(5)
-        account.express_outgoing_transfer(0)
-        assert account.balance == 0
-
-    def test_express_outgoing_transfer_below_zero_by_fee(self):
-        account = CompanyAccount("Tech Corp", "1234567890")
-        account.express_outgoing_transfer(0)
-        assert account.balance == -5
-
-    def test_express_outgoing_transfer_insufficient_for_amount(self):
-        account = CompanyAccount("Tech Corp", "1234567890")
-        account.incoming_transfer(10)
-        account.express_outgoing_transfer(50)
-        assert account.balance == 10
-
-    def test_express_outgoing_transfer_exact_amount_plus_fee(self):
-        account = CompanyAccount("Tech Corp", "1234567890")
-        account.incoming_transfer(55)
-        account.express_outgoing_transfer(50)
-        assert account.balance == 0
-
-    def test_history_incoming_transfer(self):
-        account = CompanyAccount("Tech Corp", "1234567890")
-        account.incoming_transfer(100)
-        assert account.historia == [100]
-
-    def test_history_express_transfer(self):
-        account = CompanyAccount("Tech Corp", "1234567890")
-        account.incoming_transfer(100)
-        account.express_outgoing_transfer(50)
-        assert account.historia == [100, -50, -5]
+    def test_history_express_transfer(self, company_account):
+        company_account.incoming_transfer(100)
+        company_account.express_outgoing_transfer(50)
+        assert company_account.historia == [100, -50, -5]

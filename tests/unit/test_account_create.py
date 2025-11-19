@@ -1,96 +1,57 @@
+import pytest
 from src.account import Account
 
 
 class TestAccount:
-    def test_account_creation(self):
-        account = Account("John", "Doe", "12345678901")
-        assert account.first_name == "John"
-        assert account.last_name == "Doe"
-        assert account.balance == 0
-        assert account.pesel == "12345678901"
+    def test_account_creation(self, personal_account):
+        assert personal_account.first_name == "John"
+        assert personal_account.last_name == "Doe"
+        assert personal_account.balance == 0
+        assert personal_account.pesel == "12345678901"
 
-    def test_account_creation_shortpesel(self):
-        account = Account("John", "Doe", "123456789")
+    @pytest.mark.parametrize("pesel", ["123456789", "123456789012"])
+    def test_account_creation_invalid_pesel_length(self, pesel):
+        account = Account("John", "Doe", pesel)
         assert account.pesel == "Invalid"
 
-    def test_account_creation_longpesel(self):
-        account = Account("John", "Doe", "123456789012")
-        assert account.pesel == "Invalid"
+    @pytest.mark.parametrize("promo_code,expected_balance", [
+        ("PROM_ABC", 50),
+        ("PROM_123", 50),
+    ])
+    def test_account_creation_valid_promo(self, promo_code, expected_balance):
+        account = Account("John", "Doe", "12345678901", promo_code)
+        assert account.balance == expected_balance
 
-    def test_account_creation_promovalid(self):
-        account = Account("John", "Doe", "12345678901", "PROM_ABC")
-        assert account.balance == 50
-
-    def test_account_creation_promosuf(self):
-        account = Account("John", "Doe", "12345678901", "PROM_123")
-        assert account.balance == 50
-
-    def test_account_creation_nopromo(self):
-        account = Account("John", "Doe", "12345678901")
+    @pytest.mark.parametrize("promo_code", [None, "", "PROMO_ABC", "PROMABC", "PROM_"])
+    def test_account_creation_invalid_promo(self, personal_account, promo_code):
+        account = Account("John", "Doe", "12345678901", promo_code)
         assert account.balance == 0
 
-    def test_account_creation_nonepromo(self):
-        account = Account("John", "Doe", "12345678901", None)
+    @pytest.mark.parametrize("pesel,promo,expected", [
+        ("85012312345", "PROM_ABC", 50),
+        ("61012312345", "PROM_ABC", 50),
+        ("60012312345", "PROM_ABC", 0),
+        ("55012312345", "PROM_ABC", 0),
+    ])
+    def test_account_creation_birth_year(self, pesel, promo, expected):
+        account = Account("John", "Doe", pesel, promo)
+        assert account.balance == expected
+
+    @pytest.mark.parametrize("pesel", ["123", "6101231234A"])
+    def test_account_creation_invalid_pesel_data(self, pesel):
+        account = Account("John", "Doe", pesel, "PROM_ABC")
         assert account.balance == 0
 
-    def test_account_creation_promowrong(self):
-        account = Account("John", "Doe", "12345678901", "PROMO_ABC")
-        assert account.balance == 0
-
-    def test_account_creation_nounder(self):
-        account = Account("John", "Doe", "12345678901", "PROMABC")
-        assert account.balance == 0
-
-    def test_account_creation_promoonly(self):
-        account = Account("John", "Doe", "12345678901", "PROM_")
-        assert account.balance == 0
-
-    def test_account_creation_promoempty(self):
-        account = Account("John", "Doe", "12345678901", "")
-        assert account.balance == 0
-
-    def test_account_creation_born85(self):
-        account = Account("John", "Doe", "85012312345", "PROM_ABC")
-        assert account.balance == 50
-
-    def test_account_creation_born61(self):
-        account = Account("John", "Doe", "61012312345", "PROM_ABC")
-        assert account.balance == 50
-
-    def test_account_creation_born60(self):
-        account = Account("John", "Doe", "60012312345", "PROM_ABC")
-        assert account.balance == 0
-
-    def test_account_creation_born55(self):
-        account = Account("John", "Doe", "55012312345", "PROM_ABC")
-        assert account.balance == 0
-
-    def test_account_creation_invalidpesel(self):
-        account = Account("John", "Doe", "123", "PROM_ABC")
-        assert account.balance == 0
-        account = Account("John", "Doe", "123", "PROM_ABC")
-        assert account.balance == 0
-
-    def test_account_creation_promo_not_string(self):
+    def test_account_creation_promo_not_string(self, personal_account_born_1985):
         account = Account("John", "Doe", "85012312345", 12345)
         assert account.balance == 0
 
-    def test_account_creation_born_2000(self):
-        account = Account("John", "Doe", "00212312345", "PROM_ABC")
-        assert account.balance == 50
-
-    def test_account_creation_born_2100(self):
-        account = Account("John", "Doe", "00412312345", "PROM_ABC")
-        assert account.balance == 50
-
-    def test_account_creation_born_2200(self):
-        account = Account("John", "Doe", "00612312345", "PROM_ABC")
-        assert account.balance == 50
-
-    def test_account_creation_born_1800(self):
-        account = Account("John", "Doe", "00812312345", "PROM_ABC")
-        assert account.balance == 0
-
-    def test_account_creation_pesel_with_letters(self):
-        account = Account("John", "Doe", "6101231234A", "PROM_ABC")
-        assert account.balance == 0
+    @pytest.mark.parametrize("pesel,expected", [
+        ("00212312345", 50),
+        ("00412312345", 50),
+        ("00612312345", 50),
+        ("00812312345", 0),
+    ])
+    def test_account_creation_different_centuries(self, pesel, expected):
+        account = Account("John", "Doe", pesel, "PROM_ABC")
+        assert account.balance == expected
