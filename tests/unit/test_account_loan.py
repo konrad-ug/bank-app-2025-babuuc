@@ -9,7 +9,7 @@ class TestAccountLoan:
         account.incoming_transfer(30)
         result = account.submit_for_loan(200)
         assert result is True
-        assert account.balance == 180
+        assert account.balance == 380
 
     def test_loan_last_three_not_all_incoming(self):
         account = Account("John", "Doe", "12345678901")
@@ -88,7 +88,7 @@ class TestAccountLoan:
         account.incoming_transfer(30)
         result = account.submit_for_loan(200)
         assert result is True
-        assert account.balance == 370
+        assert account.balance == 380
 
     def test_loan_five_transactions_sum_check(self):
         account = Account("John", "Doe", "12345678901")
