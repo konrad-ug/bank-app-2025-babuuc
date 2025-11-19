@@ -70,3 +70,27 @@ class TestAccount:
         assert account.balance == 0
         account = Account("John", "Doe", "123", "PROM_ABC")
         assert account.balance == 0
+
+    def test_account_creation_promo_not_string(self):
+        account = Account("John", "Doe", "85012312345", 12345)
+        assert account.balance == 0
+
+    def test_account_creation_born_2000(self):
+        account = Account("John", "Doe", "00212312345", "PROM_ABC")
+        assert account.balance == 50
+
+    def test_account_creation_born_2100(self):
+        account = Account("John", "Doe", "00412312345", "PROM_ABC")
+        assert account.balance == 50
+
+    def test_account_creation_born_2200(self):
+        account = Account("John", "Doe", "00612312345", "PROM_ABC")
+        assert account.balance == 50
+
+    def test_account_creation_born_1800(self):
+        account = Account("John", "Doe", "00812312345", "PROM_ABC")
+        assert account.balance == 0
+
+    def test_account_creation_pesel_with_letters(self):
+        account = Account("John", "Doe", "6101231234A", "PROM_ABC")
+        assert account.balance == 0
