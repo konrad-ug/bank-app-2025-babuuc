@@ -20,7 +20,6 @@ class ServerThread(threading.Thread):
 
 @pytest.fixture(scope="module")
 def server():
-    global app
     server = ServerThread(app)
     server.start()
     time.sleep(1)
