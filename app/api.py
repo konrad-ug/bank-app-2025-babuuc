@@ -10,6 +10,10 @@ def create_account():
     data = request.get_json()
     print(f"Request data: {data}")
     
+    # tera sprawdzamy czy pesel juz istnieje
+    if registry.get_account_by_pesel(data["pesel"]):
+        return jsonify({"message": "Account with this pesel already exists"}), 409
+
     try:
         account = Account(data["name"], data["surname"], data["pesel"])
         registry.add_account(account)
@@ -57,3 +61,22 @@ def update_account(pesel):
 @app.route("/api/accounts/<pesel>", methods=['DELETE'])
 def delete_account(pesel):
     return jsonify({"message": "Account deleted"}), 200
+
+@app.route("/api/accounts/<pesel>/transfer", methods=['POST'])
+def make_transfer(pesel):
+    data = request.get_json()
+    amount = data["amount"]
+    transfer_type = data["type"]
+
+    account = registry.get_account_by_pesel(pesel)
+    if not account:
+        return jsonify({"message": "Account not found"}), 404
+
+    if transfer_type == "incoming":
+        account.incoming_transfer(amount)
+    elif transfer_type == "outgoing":
+        if account.balance < amount:
+             return jsonify({"message": "Insufficient funds"}), 422
+        account.outgoing_transfer(amount)
+    
+    return jsonify({"message": "Transfer processed"}), 200
