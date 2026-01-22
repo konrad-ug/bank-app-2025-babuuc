@@ -93,6 +93,16 @@ class Account:
         content = f"Personal account history: {self.historia}"
         
         return client.send(subject, content, email_address)
+    
+    def to_dict(self):
+        return {
+            "type": "personal",
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "pesel": self.pesel,
+            "balance": self.balance,
+            "history": self.historia
+        }
 
 
 class CompanyAccount(Account):
@@ -145,3 +155,12 @@ class CompanyAccount(Account):
         content = f"Company account history: {self.historia}"
         
         return client.send(subject, content, email_address)
+    
+    def to_dict(self):
+        return {
+            "type": "company",
+            "company_name": self.company_name,
+            "nip": self.nip,
+            "balance": self.balance,
+            "history": self.historia
+        }
