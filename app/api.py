@@ -53,9 +53,19 @@ def get_account_by_pesel(pesel):
     else:
         return jsonify({"message": "Account not found"}), 404
 
-# to do labow 8 jak rozumiem
 @app.route("/api/accounts/<pesel>", methods=['PATCH'])
 def update_account(pesel):
+    data = request.get_json()
+    account = registry.get_account_by_pesel(pesel)
+    
+    if not account:
+        return jsonify({"message": "Account not found"}), 404
+
+    if "name" in data:
+        account.first_name = data["name"]
+    if "surname" in data:
+        account.last_name = data["surname"]
+        
     return jsonify({"message": "Account updated"}), 200
 
 @app.route("/api/accounts/<pesel>", methods=['DELETE'])
