@@ -94,3 +94,13 @@ class CompanyAccount(Account):
             self.balance -= (amount + fee)
             self.historia.append(-amount)
             self.historia.append(-fee)
+
+    def take_loan(self, amount):
+        if self.balance < 2 * amount:
+            return False
+            
+        if -1775 not in self.historia:
+            return False
+
+        self.balance += amount
+        return True
