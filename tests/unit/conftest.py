@@ -15,3 +15,7 @@ def personal_account_born_1985():
 @pytest.fixture
 def company_account():
     return CompanyAccount("Tech Corp", "1234567890")
+
+@pytest.fixture(autouse=True)
+def mock_nip_verification_global(mocker):
+    mocker.patch('src.account.CompanyAccount.verify_nip', return_value=True)

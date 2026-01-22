@@ -1,3 +1,7 @@
+import requests
+import os
+from datetime import date
+
 class Account:
     def __init__(self, first_name, last_name, pesel, promo_code=None):
         self.first_name = first_name
@@ -87,6 +91,26 @@ class CompanyAccount(Account):
         self.nip = nip if len(nip) == 10 and nip.isdigit() else "Invalid"
         self.balance = 0
         self.historia = []
+        
+        if self.nip != "Invalid":
+             if not self.verify_nip():
+                 raise ValueError("Company not registered")
+
+    def verify_nip(self):
+        base_url = os.getenv("BANK_APP_MF_URL", "https://wl-test.mf.gov.pl")
+        today = date.today().strftime("%Y-%m-%d")
+        url = f"{base_url}/api/search/nip/{self.nip}?date={today}"
+        
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                data = response.json()
+                status = data.get("result", {}).get("subject", {}).get("statusVat")
+                if status == "Czynny":
+                    return True
+            return False
+        except Exception:
+            return False
 
     def express_outgoing_transfer(self, amount):
         fee = 5
@@ -98,9 +122,7 @@ class CompanyAccount(Account):
     def take_loan(self, amount):
         if self.balance < 2 * amount:
             return False
-            
         if -1775 not in self.historia:
             return False
-
         self.balance += amount
         return True
