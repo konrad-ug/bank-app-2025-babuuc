@@ -37,3 +37,6 @@ jobs:
     - name: Test with pytest
       run: |
         python3 -m coverage run --source=src -m pytest tests/unit
+    - name: Execute Performance Tests
+      run: |
+        python3 -m pytest tests/perf

@@ -60,7 +60,10 @@ def update_account(pesel):
 
 @app.route("/api/accounts/<pesel>", methods=['DELETE'])
 def delete_account(pesel):
-    return jsonify({"message": "Account deleted"}), 200
+    if registry.delete_account(pesel):
+        return jsonify({"message": "Account deleted"}), 200
+    else:
+        return jsonify({"message": "Account not found"}), 404
 
 @app.route("/api/accounts/<pesel>/transfer", methods=['POST'])
 def make_transfer(pesel):
