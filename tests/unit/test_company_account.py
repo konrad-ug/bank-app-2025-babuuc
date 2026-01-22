@@ -1,7 +1,8 @@
 import pytest
 from src.account import CompanyAccount
 
-
+# Dodajemy dekorator, żeby mock działał w całej klasie
+@pytest.mark.usefixtures("mock_nip_verification_global")
 class TestCompanyAccount:
     def test_company_account_creation(self, company_account):
         assert company_account.company_name == "Tech Corp"
@@ -10,6 +11,9 @@ class TestCompanyAccount:
 
     @pytest.mark.parametrize("nip", ["123456789", "12345678901", "123456789A"])
     def test_company_account_invalid_nip(self, nip):
+        # Tutaj musimy uważać - jeśli NIP jest niepoprawny długością, 
+        # walidacja w gov.pl i tak się nie odpali (kod blokuje wcześniej),
+        # więc mock nie jest konieczny, ale nie szkodzi.
         account = CompanyAccount("Tech Corp", nip)
         assert account.nip == "Invalid"
 

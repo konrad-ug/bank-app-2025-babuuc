@@ -1,6 +1,6 @@
 import pytest
 from src.mongo_repository import MongoAccountsRepository
-from src.account import Account
+from src.account import Account, CompanyAccount
 
 class TestMongoRepository:
     def test_save_all(self, mocker):
@@ -31,13 +31,36 @@ class TestMongoRepository:
                 "pesel": "99999999999",
                 "balance": 100,
                 "history": [100]
+            },
+            {
+                "type": "company",
+                "company_name": "Drutex",
+                "nip": "8461627563", 
+                "balance": 5000,
+                "history": []
+            },
+            {
+                "type": "company",
+                "company_name": "Mafia",
+                "nip": "0000000000", 
+                "balance": 9999,
+                "history": []
             }
         ]
         
+        mocker.patch('src.account.CompanyAccount.verify_nip', side_effect=[True, False])
+
         repo = MongoAccountsRepository()
         loaded_accounts = repo.load_all()
         
-        assert len(loaded_accounts) == 1
+        assert len(loaded_accounts) == 3
+        
         assert loaded_accounts[0].first_name == "Anna"
-        assert loaded_accounts[0].balance == 100
         assert isinstance(loaded_accounts[0], Account)
+        
+        assert loaded_accounts[1].company_name == "Drutex"
+        assert isinstance(loaded_accounts[1], CompanyAccount)
+        
+        assert loaded_accounts[2].company_name == "Mafia"
+        assert loaded_accounts[2].nip == "0000000000"
+        assert isinstance(loaded_accounts[2], CompanyAccount)

@@ -1,7 +1,6 @@
 import pytest
 from src.account import Account
 
-
 class TestAccount:
     def test_account_creation(self, personal_account):
         assert personal_account.first_name == "John"
@@ -47,11 +46,15 @@ class TestAccount:
         assert account.balance == 0
 
     @pytest.mark.parametrize("pesel,expected", [
-        ("00212312345", 50),
-        ("00412312345", 50),
-        ("00612312345", 50),
-        ("00812312345", 0),
+        ("00212312345", 50), # 2000
+        ("00412312345", 50), # 2100
+        ("00612312345", 50), # 2200
+        ("00812312345", 0),  # 1800
     ])
     def test_account_creation_different_centuries(self, pesel, expected):
         account = Account("John", "Doe", pesel, "PROM_ABC")
         assert account.balance == expected
+    
+    def test_account_pesel_non_digit(self):
+        account = Account("John", "Doe", "1234567890a")
+        assert account._extract_birth_year() is None

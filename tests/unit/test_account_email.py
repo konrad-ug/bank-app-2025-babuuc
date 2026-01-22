@@ -3,6 +3,7 @@ from datetime import date
 from src.account import Account
 from src.smtp.smtp_client import SMTPClient
 
+@pytest.mark.usefixtures("mock_nip_verification_global")
 class TestAccountEmail:
     def test_send_history_success(self, mocker):
         account = Account("Jan", "Kowalski", "12345678901")
