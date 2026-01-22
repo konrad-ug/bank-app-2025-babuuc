@@ -4,9 +4,15 @@
 ## Author:
 name:
 
+Bartłomiej
+
 surname:
 
+Draczyński
+
 group:
+
+1
 
 ## How to start the app
 
