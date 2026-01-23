@@ -19,6 +19,28 @@ class TestMongoRepository:
         assert inserted_data[0]["pesel"] == "12345678901"
         assert inserted_data[0]["first_name"] == "Jan"
 
+    def test_save_all_with_company_account(self, mocker):
+        mock_client = mocker.patch('src.mongo_repository.MongoClient')
+        mock_collection = mock_client.return_value.__getitem__.return_value.__getitem__.return_value
+        mocker.patch('src.account.CompanyAccount.verify_nip', return_value=True)
+        
+        repo = MongoAccountsRepository()
+        company = CompanyAccount("Januszex", "1234567890")
+        company.balance = 5000
+        company.historia = [-1775, 1000]
+        repo.save_all([company])
+        
+        mock_collection.delete_many.assert_called_once_with({})
+        mock_collection.insert_many.assert_called_once()
+        args, _ = mock_collection.insert_many.call_args
+        inserted_data = args[0]
+        
+        assert inserted_data[0]["type"] == "company"
+        assert inserted_data[0]["company_name"] == "Januszex"
+        assert inserted_data[0]["nip"] == "1234567890"
+        assert inserted_data[0]["balance"] == 5000
+        assert inserted_data[0]["history"] == [-1775, 1000]
+
     def test_load_all(self, mocker):
         mock_client = mocker.patch('src.mongo_repository.MongoClient')
         mock_collection = mock_client.return_value.__getitem__.return_value.__getitem__.return_value
