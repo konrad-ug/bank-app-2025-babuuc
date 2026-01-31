@@ -49,4 +49,4 @@ jobs:
         
     - name: Show Coverage Report
       run: |
-        python3 -m coverage report
+        python3 -m coverage report --fail-under=100

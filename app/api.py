@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from src.account import Account
+from src.account import Account, CompanyAccount
 from src.account_registry import AccountRegistry
 from src.mongo_repository import MongoAccountsRepository
 
@@ -17,7 +17,13 @@ def create_account():
         return jsonify({"message": "Account with this pesel already exists"}), 409
 
     try:
-        account = Account(data["name"], data["surname"], data["pesel"])
+        if "nip" in data:
+            # tworzenie konta firmowego
+            account = CompanyAccount(data["company_name"], data["nip"])
+        else:
+            # osobistego
+            account = Account(data["name"], data["surname"], data["pesel"])
+            
         registry.add_account(account)
         return jsonify({"message": "Account created"}), 201
     except Exception as e:
@@ -89,10 +95,20 @@ def make_transfer(pesel):
 
     if transfer_type == "incoming":
         account.incoming_transfer(amount)
+        
     elif transfer_type == "outgoing":
         if account.balance < amount:
              return jsonify({"message": "Insufficient funds"}), 422
         account.outgoing_transfer(amount)
+        
+    elif transfer_type == "express":
+        if account.balance < amount:
+             return jsonify({"message": "Insufficient funds"}), 422
+        account.express_outgoing_transfer(amount)
+        
+    else:
+        # feature 17 poprawka
+        return jsonify({"message": "Invalid transfer type"}), 400
     
     return jsonify({"message": "Transfer processed"}), 200
 
